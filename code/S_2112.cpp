@@ -31,7 +31,12 @@ int revise(int(*arr)[20], int cnt, int start, int depth)
 	int count = cnt;
 	int a_arr[13][20] = { 0, };
 	int tmp[20] = { 0, };
-	copy_arr(arr, a_arr);
+	memcpy(a_arr, arr, sizeof(int) * 260);
+
+	if (chk_r == 1)
+		return min_v;
+	if (K < count)
+		return K;
 
 	for (int i = start; i < D; i++)
 	{
@@ -52,10 +57,6 @@ int revise(int(*arr)[20], int cnt, int start, int depth)
 		if (count < depth)
 		{
 			revise(a_arr, count + 1, i + 1, depth);
-		}
-		for (int j = 0; j < W; j++)
-		{
-			a_arr[i][j] = tmp[j];
 		}
 		for (int j = 0; j < W; j++)
 		{
@@ -93,33 +94,35 @@ bool solve(int(*arr)[20])
 
 	for (int j = 0; j < W; j++)
 	{
-		cnt = 0;
-		for (int i = 0; i < D; i++)
+		cnt = 1;
+		for (int i = 1; i < D; i++)
 		{
-			if (i == 0)
-				cnt++;
-			else if (temp == arr[i][j])
+			if (arr[i-1][j] == arr[i][j])
 			{
 				cnt++;
+				if (K <= cnt)
+				{
+					rst[j] = 1;
+					break;
+				}
 			}
-			else if (temp != arr[i][j])
+			else
 			{
+				if ((D - K) < i)
+				{
+					return false;
+				}
+					
 				cnt = 1;
 			}
-			temp = arr[i][j];
-
-			if (K <= cnt)
-			{
-				rst[j] = 1;
-				break;
-			}
 		}
-
 	}
 	for (int i = 0; i < W; i++)
 	{
 		if (rst[i] != 1)
-			check = false;
+		{
+			return false;
+		}
 	}
 	return check;
 }
@@ -142,13 +145,16 @@ int main()
 				scanf(" %d", &arr[i][j]);
 		}
 
-		if (solve(arr))
+		
+		if (K == 1)
+			printf("#%d %d\n", t + 1, 0);
+		else if (solve(arr))
 		{
 			printf("#%d %d\n", t + 1, 0);
 		}
 		else
 		{
-			for (int k = 1; k <= D; k++)
+			for (int k = 1; k <= K; k++)
 			{
 				r = revise(arr, 1, 0, k);
 				if (chk_r == 1)
